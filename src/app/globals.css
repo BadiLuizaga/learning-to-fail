@@ -8,6 +8,8 @@
   --avatar-bottom: 3%;
   --avatar-x: 50%;
   --card: 100px;
+  /* Altura de la barra de botones: deja libre la franja inferior (insignia de Netlify, barra del iPhone) */
+  --controls-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 * { box-sizing: border-box; }
@@ -92,7 +94,7 @@ body { background: var(--bg); }
 .stage {
   position: relative;
   z-index: 1;
-  height: calc(100svh - 80px);
+  height: calc(100svh - var(--controls-bottom) - 56px);
   min-height: 300px;
 }
 
@@ -209,7 +211,7 @@ body { background: var(--bg); }
 .controls {
   position: absolute;
   z-index: 4;
-  bottom: 24px;
+  bottom: var(--controls-bottom);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -240,7 +242,7 @@ body { background: var(--bg); }
   cursor: pointer;
 }
 .dots button.active { background: #fff; box-shadow: 0 0 14px #fff, 0 0 24px #a95aff; }
-.summon { position: absolute; z-index: 4; right: 25px; bottom: 24px; }
+.summon { position: absolute; z-index: 4; right: 25px; bottom: var(--controls-bottom); }
 
 /* ───────────── Animaciones ───────────── */
 @keyframes pulse { to { opacity: 1; transform: scale(1.15); } }
@@ -285,16 +287,15 @@ body { background: var(--bg); }
 }
 
 @media (max-width: 600px) {
-  .controls { gap: 10px; bottom: 16px; }
+  .controls { gap: 10px; }
   .dots { gap: 8px; }
-  .summon { right: 12px; bottom: 72px; }
+  .summon { right: 12px; }
 }
 
 /* Celulares en horizontal (poca altura) */
 @media (max-height: 480px) and (orientation: landscape) {
-  .stage { --avatar-h: 72svh; height: calc(100svh - 64px); }
+  :root { --controls-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .stage { --avatar-h: 66svh; }
   .scene-copy { bottom: 4%; max-width: 32vw; }
   .scene-copy p { display: none; }
-  .controls { bottom: 10px; }
-  .summon { bottom: 10px; }
 }

@@ -124,7 +124,9 @@ function measureLayout(anchor: HTMLElement, avatar: HTMLElement): CardLayout {
 
   const roomX = Math.min(ax, vw - ax) - half - margin;
   const roomUp = ay - half - margin;
-  const roomDown = vh - 80 - ay - half - margin; // deja libre la barra de controles
+  // Deja libre la barra de botones
+  const controlsTop = document.querySelector(".controls")?.getBoundingClientRect().top ?? vh - 80;
+  const roomDown = controlsTop - ay - half - margin;
 
   const midX = Math.max(0, Math.min(w / 2 + card * 0.65, roomX));
   // Ancho disponible para el texto de la escena sin chocar con los emojis de la izquierda
