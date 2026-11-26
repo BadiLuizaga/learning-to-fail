@@ -32,17 +32,6 @@ Crear una presentación dinámica, visual e interactiva que transmita una idea f
 
 ##  Experiencia interactiva
 
-La presentación estará organizada en diferentes escenas:
-
-| Escena | Tema | Concepto visual |
-|:---:|---|---|
-| 01 | Introduction | Presentación del personaje y del tema |
-| 02 | What Is Failure? | Errores y primeras dificultades |
-| 03 | Why Do We Fail? | Retos, decisiones y obstáculos |
-| 04 | Learning from Mistakes | Reflexión y aprendizaje |
-| 05 | Building Resilience | Levantarse e intentarlo de nuevo |
-| 06 | Success | Progreso y objetivos alcanzados |
-| 07 | Conclusion | Mensaje final motivador |
 
 ##  Diseño y multimedia
 
@@ -52,24 +41,7 @@ La presentación estará organizada en diferentes escenas:
 | Tailwind CSS | Transiciones | Ilustraciones |
 | Diseño Responsive | Interacciones | Fondos retro |
 
-##  Pila tecnológica prevista
 
-| Frontend | UI / Animaciones | Herramientas |
-|:---:|:---:|:---:|
-| Next.js | Tailwind CSS | Git |
-| React | Framer Motion | GitHub |
-| TypeScript | Pixel Art Assets | Vercel |
-
-##  Roadmap
-
-- [x] Creación del repositorio.
-- [x] Definición del concepto visual Pixel Art.
-- [ ] Diseño del personaje principal.
-- [ ] Creación de los recursos gráficos.
-- [ ] Desarrollo de la estructura de escenas.
-- [ ] Implementación de animaciones e interacciones.
-- [ ] Adaptación responsive.
-- [ ] Pruebas y preparación para la exposición.
 
 ##  Autor
 
