@@ -16,7 +16,7 @@
 
 ---
 
-## 📖 Sobre el proyecto
+##  Sobre el proyecto
 
 **Learning to Fail** es una presentación web interactiva desarrollada para una exposición en inglés.
 
@@ -24,13 +24,13 @@ A través de una experiencia visual inspirada en los videojuegos clásicos, el p
 
 El protagonista será una representación personalizada del expositor en **Pixel Art**, que interactuará con imágenes, elementos visuales y animaciones durante toda la presentación.
 
-## 🎯 Objetivo
+##  Objetivo
 
 Crear una presentación dinámica, visual e interactiva que transmita una idea fundamental:
 
 > Failure is not the opposite of success; it is part of the process.
 
-## 🕹️ Experiencia interactiva
+##  Experiencia interactiva
 
 La presentación estará organizada en diferentes escenas:
 
@@ -44,7 +44,7 @@ La presentación estará organizada en diferentes escenas:
 | 06 | Success | Progreso y objetivos alcanzados |
 | 07 | Conclusion | Mensaje final motivador |
 
-## 🎨 Diseño y multimedia
+##  Diseño y multimedia
 
 | Diseño e interfaz | Animaciones | Recursos gráficos |
 |:---:|:---:|:---:|
@@ -52,7 +52,7 @@ La presentación estará organizada en diferentes escenas:
 | Tailwind CSS | Transiciones | Ilustraciones |
 | Diseño Responsive | Interacciones | Fondos retro |
 
-## 🧰 Pila tecnológica prevista
+##  Pila tecnológica prevista
 
 | Frontend | UI / Animaciones | Herramientas |
 |:---:|:---:|:---:|
@@ -60,7 +60,7 @@ La presentación estará organizada en diferentes escenas:
 | React | Framer Motion | GitHub |
 | TypeScript | Pixel Art Assets | Vercel |
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - [x] Creación del repositorio.
 - [x] Definición del concepto visual Pixel Art.
@@ -71,7 +71,7 @@ La presentación estará organizada en diferentes escenas:
 - [ ] Adaptación responsive.
 - [ ] Pruebas y preparación para la exposición.
 
-## 👨‍💻 Autor
+##  Autor
 
 **BadiLuizaga**
 
