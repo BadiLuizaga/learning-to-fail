@@ -93,7 +93,19 @@ export default function Home() {
       <div className="stars" />
       <div className="moon" />
       <div className="city"><i /><i /><i /><i /></div>
-      <section className="stage">
+      <section className={`stage ${scene === 0 ? "stage-intro" : ""}`}>
+        {scene === 0 && (
+          <motion.div
+            className="intro-title"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+          >
+            <span className="intro-eyebrow">A STORY ABOUT GROWTH</span>
+            <h1>Why Learning to Fail Is as Important as Learning to Pass</h1>
+            <span className="intro-rule" />
+          </motion.div>
+        )}
         <div className="cards">
           <AnimatePresence>
             {launched.map((id, index) => (
