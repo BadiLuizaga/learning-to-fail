@@ -65,9 +65,52 @@ const sceneSprites = [
 const TOTAL_DURATION_MS = 5 * 60 * 1000;
 const SCENE_DURATION_MS = TOTAL_DURATION_MS / sceneData.length;
 
+// Posiciones de los emojis alrededor del personaje (izquierda/derecha, arriba/medio/abajo)
+const cardSlots = [
+  { x: -290, y: -170, rotate: -12 },
+  { x: 290, y: -170, rotate: 12 },
+  { x: -330, y: 0, rotate: 8 },
+  { x: 330, y: 0, rotate: -8 },
+  { x: -290, y: 170, rotate: -10 },
+  { x: 290, y: 170, rotate: 10 },
+];
+
 const walkSprites = [1, 2, 3, 4].map(
   (n) => `/images/character/walk-${n}.png`
 );
+
+// Estrella fugaz que cruza el cielo cada cierto rato (entre 4 y 10 s)
+function ShootingStars() {
+  const [star, setStar] = useState<{
+    id: number;
+    top: number;
+    left: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let timer: number;
+    const launch = () => {
+      setStar({
+        id: Date.now(),
+        top: 4 + Math.random() * 30,
+        left: 35 + Math.random() * 60,
+      });
+      timer = window.setTimeout(launch, 4000 + Math.random() * 6000);
+    };
+    timer = window.setTimeout(launch, 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!star) return null;
+
+  return (
+    <span
+      key={star.id}
+      className="shooting-star"
+      style={{ top: `${star.top}%`, left: `${star.left}%` }}
+    />
+  );
+}
 
 function Avatar({
   src,
@@ -111,6 +154,16 @@ export default function Home() {
   const [launched, setLaunched] = useState<number[]>([]);
   const [summoning, setSummoning] = useState(false);
   const [walkFrame, setWalkFrame] = useState(0);
+  const [spread, setSpread] = useState(1);
+
+  // Ajusta la separación de los emojis al ancho de la pantalla
+  useEffect(() => {
+    const update = () =>
+      setSpread(Math.max(0.55, Math.min(1, window.innerWidth / 1360)));
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const summon = useCallback(() => {
     setSummoning(true);
@@ -200,6 +253,7 @@ export default function Home() {
   return (
     <main className="world">
       <div className="stars" />
+      <ShootingStars />
       <div className="moon" />
 
       <div className="city">
@@ -273,17 +327,21 @@ export default function Home() {
                 initial={{
                   opacity: 0,
                   scale: 0.1,
-                  y: 90,
+                  x: 0,
+                  y: 0,
                   rotate: -20,
                 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
                   x:
-                    (index % 2 ? 1 : -1) *
-                    (125 + index * 28),
-                  y: -120 - (index % 3) * 48,
-                  rotate: index % 2 ? 12 : -12,
+                    cardSlots[index % cardSlots.length].x * spread +
+                    Math.floor(index / cardSlots.length) * 30 *
+                      Math.sign(cardSlots[index % cardSlots.length].x),
+                  y:
+                    cardSlots[index % cardSlots.length].y * spread -
+                    Math.floor(index / cardSlots.length) * 30,
+                  rotate: cardSlots[index % cardSlots.length].rotate,
                 }}
                 exit={{
                   opacity: 0,
