@@ -1,6 +1,15 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type Ref,
+} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 /* ───────────────────────── Datos de la presentación ───────────────────────── */
@@ -71,27 +80,62 @@ const SUMMON_POSE_MS = 1050;
 const WALK_FRAME_MS = 170;
 const MAX_CARDS = 12;
 
-// Posiciones de los emojis alrededor del personaje (izquierda/derecha, arriba/medio/abajo)
-const CARD_SLOTS = [
-  { x: -290, y: -170, rotate: -12 },
-  { x: 290, y: -170, rotate: 12 },
-  { x: -330, y: 0, rotate: 8 },
-  { x: 330, y: 0, rotate: -8 },
-  { x: -290, y: 170, rotate: -10 },
-  { x: 290, y: 170, rotate: 10 },
-];
-
 const CARD_TRANSITION = { type: "spring", stiffness: 160, damping: 13 } as const;
 
-function cardTarget(index: number, spread: number) {
+// Distribución de los emojis alrededor del personaje: se calcula según el
+// tamaño real del personaje y de la pantalla para que nunca se salgan.
+type CardLayout = { card: number; midX: number; outX: number; y: number; copyW: number };
+
+const DEFAULT_LAYOUT: CardLayout = { card: 100, midX: 330, outX: 290, y: 170, copyW: 520 };
+
+// Lado (-1 izquierda / 1 derecha), fila (-1 arriba / 0 medio / 1 abajo) y giro
+const CARD_SLOTS = [
+  { side: -1, row: -1, rotate: -12 },
+  { side: 1, row: -1, rotate: 12 },
+  { side: -1, row: 0, rotate: 8 },
+  { side: 1, row: 0, rotate: -8 },
+  { side: -1, row: 1, rotate: -10 },
+  { side: 1, row: 1, rotate: 10 },
+];
+
+function cardTarget(index: number, layout: CardLayout) {
   const slot = CARD_SLOTS[index % CARD_SLOTS.length];
-  const ring = Math.floor(index / CARD_SLOTS.length) * 30;
+  // Si se invocan más de 6, los siguientes quedan un poco más adentro
+  const inset = 1 - Math.floor(index / CARD_SLOTS.length) * 0.12;
+  const x = slot.row === 0 ? layout.midX : layout.outX;
   return {
     opacity: 1,
     scale: 1,
-    x: slot.x * spread + ring * Math.sign(slot.x),
-    y: slot.y * spread - ring,
+    x: slot.side * x * inset,
+    y: slot.row * layout.y * inset,
     rotate: slot.rotate,
+  };
+}
+
+function measureLayout(anchor: HTMLElement, avatar: HTMLElement): CardLayout {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const { left: ax, top: ay } = anchor.getBoundingClientRect();
+  const { width: w, height: h } = avatar.getBoundingClientRect();
+
+  const card = Math.round(Math.max(52, Math.min(vh * 0.15, vw * 0.16, 130)));
+  const margin = 10;
+  const half = card / 2;
+
+  const roomX = Math.min(ax, vw - ax) - half - margin;
+  const roomUp = ay - half - margin;
+  const roomDown = vh - 80 - ay - half - margin; // deja libre la barra de controles
+
+  const midX = Math.max(0, Math.min(w / 2 + card * 0.65, roomX));
+  // Ancho disponible para el texto de la escena sin chocar con los emojis de la izquierda
+  const copyW = Math.max(220, ax - midX - half - vw * 0.05 - 16);
+
+  return {
+    card,
+    copyW,
+    midX,
+    outX: Math.max(0, Math.min(w * 0.42 + card * 0.65, roomX)),
+    y: Math.max(0, Math.min(h * 0.36, roomUp, roomDown)),
   };
 }
 
@@ -130,13 +174,16 @@ const Avatar = memo(function Avatar({
   src,
   walking,
   onSummon,
+  ref,
 }: {
   src: string;
   walking: boolean;
   onSummon: () => void;
+  ref?: Ref<HTMLButtonElement>;
 }) {
   return (
     <motion.button
+      ref={ref}
       className="avatar"
       onClick={onSummon}
       aria-label="Summon images"
@@ -185,7 +232,9 @@ export default function Home() {
   const [cards, setCards] = useState<number[]>([]);
   const [summoning, setSummoning] = useState(false);
   const [walkFrame, setWalkFrame] = useState(0);
-  const [spread, setSpread] = useState(1);
+  const [layout, setLayout] = useState<CardLayout>(DEFAULT_LAYOUT);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLButtonElement>(null);
   const summonTimer = useRef<number | undefined>(undefined);
   const cardId = useRef(0);
 
@@ -196,13 +245,21 @@ export default function Home() {
     });
   }, []);
 
-  // Ajusta la separación de los emojis al ancho de la pantalla
-  useEffect(() => {
-    const update = () => setSpread(Math.max(0.55, Math.min(1, window.innerWidth / 1360)));
+  // Recalcula la distribución de los emojis al cambiar el tamaño de pantalla o de escena
+  useLayoutEffect(() => {
+    const update = () => {
+      if (anchorRef.current && avatarRef.current) {
+        setLayout(measureLayout(anchorRef.current, avatarRef.current));
+      }
+    };
     update();
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+    window.addEventListener("orientationchange", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, [scene]);
 
   useEffect(() => () => window.clearTimeout(summonTimer.current), []);
 
@@ -285,7 +342,9 @@ export default function Home() {
       : current.sprite;
 
   return (
-    <main className="world">
+    <main className="world" style={
+        { "--card": `${layout.card}px`, "--copy-w": `${layout.copyW}px` } as CSSProperties
+      }>
       <Background />
 
       <section className={`stage${scene === 0 ? " stage-intro" : ""}`}>
@@ -301,14 +360,14 @@ export default function Home() {
           <p>{current.subtitle}</p>
         </motion.div>
 
-        <div className="cards">
+        <div className="cards" ref={anchorRef}>
           <AnimatePresence>
             {cards.map((id, index) => (
               <motion.div
                 key={id}
                 className="card"
                 initial={{ opacity: 0, scale: 0.1, x: 0, y: 0, rotate: -20 }}
-                animate={cardTarget(index, spread)}
+                animate={cardTarget(index, layout)}
                 exit={{ opacity: 0, scale: 0.5 }}
                 transition={CARD_TRANSITION}
               >
@@ -318,7 +377,7 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-        <Avatar src={avatarSrc} walking={walking} onSummon={summon} />
+        <Avatar ref={avatarRef} src={avatarSrc} walking={walking} onSummon={summon} />
 
         <span className="ambient a">✦</span>
         <span className="ambient b">✧</span>

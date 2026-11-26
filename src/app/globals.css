@@ -3,8 +3,8 @@
   --bg: #090516;
   --purple: #a45cff;
   --lilac: #d7b3ff;
-  --avatar-w: min(390px, 48vw);
-  --avatar-h: min(490px, 72vh);
+  --avatar-h: clamp(220px, 70svh, 760px);
+  --avatar-w: min(calc(var(--avatar-h) * .8), 48vw);
   --avatar-bottom: 3%;
   --avatar-x: 50%;
   --card: 100px;
@@ -93,13 +93,13 @@ body { background: var(--bg); }
   position: relative;
   z-index: 1;
   height: calc(100svh - 80px);
-  min-height: 450px;
+  min-height: 300px;
 }
 
 /* Primera escena: personaje a la derecha */
 .stage-intro {
   --avatar-x: 70%;
-  --avatar-w: min(390px, 39vw);
+  --avatar-w: min(calc(var(--avatar-h) * .8), 39vw);
 }
 
 .scene-copy {
@@ -107,7 +107,7 @@ body { background: var(--bg); }
   left: 5%;
   bottom: 8%;
   z-index: 5;
-  max-width: min(520px, 75%);
+  max-width: min(var(--copy-w, 36vw), 640px);
   color: #fff;
   pointer-events: none;
 }
@@ -115,13 +115,13 @@ body { background: var(--bg); }
   display: block;
   margin-bottom: 8px;
   color: #d5aaff;
-  font-size: 11px;
+  font-size: clamp(10px, .85vw, 15px);
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: .18em;
 }
 .scene-copy h1 {
   margin: 0 0 8px;
-  font-size: clamp(18px, 2.5vw, 28px);
+  font-size: clamp(18px, 2.2vw, 42px);
   font-weight: 800;
   line-height: 1.2;
   text-shadow: 0 2px 12px rgba(0, 0, 0, .5);
@@ -129,7 +129,7 @@ body { background: var(--bg); }
 .scene-copy p {
   margin: 0;
   color: #e0d2f4;
-  font-size: clamp(12px, 1.3vw, 15px);
+  font-size: clamp(12px, 1.15vw, 21px);
   line-height: 1.5;
 }
 
@@ -142,8 +142,6 @@ body { background: var(--bg); }
   translate: -50% 0; /* no usar transform: lo ocupa la animación */
   width: var(--avatar-w);
   height: var(--avatar-h);
-  min-width: 250px;
-  min-height: 330px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -263,24 +261,40 @@ body { background: var(--bg); }
 }
 
 /* ───────────── Responsive ───────────── */
-@media (max-width: 700px) {
+
+/* Pantallas angostas o verticales: texto arriba, personaje centrado abajo */
+@media (orientation: portrait), (max-width: 1199px) and (min-height: 481px) {
+  .stage,
   .stage-intro {
-    --avatar-x: 67%;
-    --avatar-w: min(330px, 58vw);
-    --avatar-h: min(420px, 60vh);
+    --avatar-x: 50%;
+    --avatar-h: min(60svh, 125vw);
+    --avatar-w: min(calc(var(--avatar-h) * .8), 88vw);
   }
-  .stage-intro .avatar { opacity: .92; }
+  .scene-copy {
+    top: 3%;
+    bottom: auto;
+    left: 5%;
+    right: 5%;
+    max-width: none;
+    text-align: center;
+  }
+  .scene-copy h1 { font-size: clamp(18px, 5.2vw, 34px); }
+  .scene-copy p { font-size: clamp(12px, 3.4vw, 18px); }
+  .scene-label { font-size: clamp(9px, 2.4vw, 13px); }
+  .ambient { display: none; }
 }
 
 @media (max-width: 600px) {
-  :root { --card: 76px; }
-  .stage { --avatar-bottom: 7%; }
-  .stage:not(.stage-intro) {
-    --avatar-w: min(340px, 76vw);
-    --avatar-h: min(430px, 65vh);
-  }
-  .avatar { min-width: 220px; min-height: 290px; }
-  .controls { gap: 12px; }
+  .controls { gap: 10px; bottom: 16px; }
   .dots { gap: 8px; }
-  .summon { right: 12px; bottom: 78px; }
+  .summon { right: 12px; bottom: 72px; }
+}
+
+/* Celulares en horizontal (poca altura) */
+@media (max-height: 480px) and (orientation: landscape) {
+  .stage { --avatar-h: 72svh; height: calc(100svh - 64px); }
+  .scene-copy { bottom: 4%; max-width: 32vw; }
+  .scene-copy p { display: none; }
+  .controls { bottom: 10px; }
+  .summon { bottom: 10px; }
 }
